@@ -1,0 +1,10 @@
+server:
+  host: "localhost"
+  port: ":64000"
+
+gateway:
+  host: "localhost"
+  port: ":65000"
+
+database:
+  uri: ""
