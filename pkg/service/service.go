@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 
-	"database-service/helpers"
 	"database-service/pkg/api"
 	"database-service/pkg/repository"
 )
@@ -29,8 +28,6 @@ type Services struct {
 
 type Dependencies struct {
 	Repository *repository.Repositories
-	Hasher     *helpers.Hasher
-	JWTManager *helpers.JWT
 }
 
 func NewServices(deps *Dependencies) *Services {

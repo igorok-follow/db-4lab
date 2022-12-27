@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-
 	"database-service/config"
 	"github.com/go-redis/redis"
 	_ "github.com/go-sql-driver/mysql"
@@ -23,7 +22,7 @@ func NewConnection(uri string) *Connection {
 func (conn *Connection) Open() error {
 	ctx := context.Background()
 
-	db, err := sqlx.ConnectContext(ctx, "mysql", conn.databaseURI)
+	db, err := sqlx.ConnectContext(ctx, "postgres", conn.databaseURI)
 	if err != nil {
 		return err
 	}

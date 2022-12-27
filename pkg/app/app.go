@@ -4,7 +4,6 @@ import (
 	"context"
 	"net"
 	"net/http"
-	"time"
 
 	"database-service/helpers/logger"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
@@ -13,17 +12,12 @@ import (
 	"google.golang.org/grpc"
 
 	"database-service/config"
-	"database-service/helpers"
 	"database-service/pkg/api"
 	"database-service/pkg/repository"
 	"database-service/pkg/service"
 )
 
 func Run(config *config.Config) {
-	serverMeta := &helpers.ServerMeta{
-		LogLevel: config.Logger.LogLevel,
-	}
-
 	conn := repository.NewConnection(config.Database.Uri)
 	err := conn.Open()
 	if err != nil {
@@ -37,30 +31,14 @@ func Run(config *config.Config) {
 		}
 	}(conn.DB)
 
-	logger.Info("Connected to users database")
+	logger.Info("Connected to database")
 
 	repositories := repository.NewRepositories(conn.DB)
-
-	hasher := helpers.NewHasher(config.Token.Salt)
-
-	jwtManager, err := helpers.NewJWT(config.Token.SecretKey)
-	if err != nil {
-		logger.FatalError("JWT manager error", err)
-	}
-
-	redisClient, err := repository.NewRedisClient(config.Redis)
-	if err != nil {
-		logger.FatalError("Configure redis connection error", err)
-	}
-
-	defer redisClient.Close()
 
 	logger.Info("Connected to redis")
 
 	deps := &service.Dependencies{
 		Repository: repositories,
-		Hasher:     hasher,
-		JWTManager: jwtManager,
 	}
 	services := service.NewServices(deps)
 
@@ -79,8 +57,6 @@ func Run(config *config.Config) {
 	go func() {
 		logger.Error("serve error", s.Serve(l))
 	}()
-
-	serverMeta.GrpcServerStarted = time.Now().String()
 
 	gwconn, err := grpc.DialContext(
 		context.Background(),
@@ -109,9 +85,6 @@ func Run(config *config.Config) {
 		Addr:    config.Gateway.Port,
 		Handler: gwmux,
 	}
-
-	serverMeta.GrpcGatewayStarted = time.Now().String()
-	serverMeta.Running = time.Now().String()
 
 	logger.Info("Serving gRPC-Gateway...",
 		logger.String("host", config.Gateway.Host),
