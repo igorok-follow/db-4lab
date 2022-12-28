@@ -7,4 +7,4 @@ gateway:
   port: ":65000"
 
 database:
-  uri: "host= port= user= password= dbname= sslmode=disable"
+  uri: ""

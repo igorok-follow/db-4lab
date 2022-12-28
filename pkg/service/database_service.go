@@ -4,6 +4,7 @@ import (
 	"context"
 	"database-service/pkg/api"
 	"database-service/pkg/models"
+	"log"
 )
 
 type Database struct {
@@ -71,12 +72,11 @@ func (d *Database) GetProducts(ctx context.Context, _ *api.Empty) (*api.GetProdu
 		currentDetails := products[i].Details
 		detailsResp := make([]*api.Detail, len(products[i].Details))
 		for j := 0; j < len(currentDetails); j++ {
-			detailsResp[i] = &api.Detail{
-				Name:         currentDetails[j].Name,
-				Weight:       currentDetails[j].Weight,
-				MaterialName: currentDetails[j].MaterialName,
-				Amount:       currentDetails[j].Amount,
+			detailsResp[j] = &api.Detail{
+				Name:   currentDetails[j].Name,
+				Amount: currentDetails[j].Amount,
 			}
+
 		}
 
 		productsResp[i] = &api.Product{
@@ -84,6 +84,10 @@ func (d *Database) GetProducts(ctx context.Context, _ *api.Empty) (*api.GetProdu
 			Name:    products[i].Name,
 			Details: detailsResp,
 		}
+
+		log.Println(productsResp[i].Details[0])
+		log.Println(productsResp[i].Details[1])
+
 	}
 
 	return &api.GetProductsResponse{

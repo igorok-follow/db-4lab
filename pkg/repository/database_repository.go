@@ -19,7 +19,7 @@ func NewDatabaseRepository(db *sqlx.DB) *Database {
 func (d *Database) GetMaterials(ctx context.Context) ([]*models.Material, error) {
 	var materials []*models.Material
 	err := d.db.SelectContext(ctx, &materials, `
-		select * from materials;
+		select material_name, cost_per_gram from "public.materials" where active = '1';
 	`)
 	if err != nil {
 		return nil, err
@@ -31,7 +31,7 @@ func (d *Database) GetMaterials(ctx context.Context) ([]*models.Material, error)
 func (d *Database) GetDetails(ctx context.Context) ([]*models.Detail, error) {
 	var details []*models.Detail
 	err := d.db.SelectContext(ctx, &details, `
-		select * from details;
+		select detail_name, weight, material_name from "public.details" where active = '1';
 	`)
 	if err != nil {
 		return nil, err
@@ -43,10 +43,22 @@ func (d *Database) GetDetails(ctx context.Context) ([]*models.Detail, error) {
 func (d *Database) GetProducts(ctx context.Context) ([]*models.Product, error) {
 	var products []*models.Product
 	err := d.db.SelectContext(ctx, &products, `
-		select * from products;
+		select product_number, product_name from "public.products" where active = '1';
 	`)
 	if err != nil {
 		return nil, err
+	}
+
+	for _, product := range products {
+		var details []*models.Detail
+		err = d.db.SelectContext(ctx, &details, `
+			select detail_name, details_amount from "public.product_composition" where product_number = $1
+		`, product.Id)
+		if err != nil {
+			return nil, err
+		}
+
+		product.Details = details
 	}
 
 	return products, nil
@@ -54,7 +66,7 @@ func (d *Database) GetProducts(ctx context.Context) ([]*models.Product, error) {
 
 func (d *Database) DeleteMaterials(ctx context.Context, name string) error {
 	_, err := d.db.ExecContext(ctx, `
-		update materials set active = '0' where material_name = $1
+		update "public.materials" set active = '0' where material_name = $1
 	`, name)
 
 	return err
@@ -62,7 +74,7 @@ func (d *Database) DeleteMaterials(ctx context.Context, name string) error {
 
 func (d *Database) DeleteDetails(ctx context.Context, name string) error {
 	_, err := d.db.ExecContext(ctx, `
-		update details set active = '0' where detail_name = $1
+		update "public.details" set active = '0' where detail_name = $1
 	`, name)
 
 	return err
@@ -70,7 +82,7 @@ func (d *Database) DeleteDetails(ctx context.Context, name string) error {
 
 func (d *Database) DeleteProducts(ctx context.Context, id int32) error {
 	_, err := d.db.ExecContext(ctx, `
-		update products set active = '0' where id = $1
+		update "public.products" set active = '0' where product_number = $1
 	`, id)
 
 	return err
@@ -78,7 +90,7 @@ func (d *Database) DeleteProducts(ctx context.Context, id int32) error {
 
 func (d *Database) InsertMaterials(ctx context.Context, material *models.Material) error {
 	_, err := d.db.ExecContext(ctx, `
-		insert into materials(material_name, cost_per_gram) values($1, $2)
+		insert into "public.materials"(material_name, cost_per_gram) values($1, $2)
 	`, material.Name, material.CostPerGram)
 
 	return err
@@ -86,7 +98,7 @@ func (d *Database) InsertMaterials(ctx context.Context, material *models.Materia
 
 func (d *Database) InsertDetails(ctx context.Context, detail *models.Detail) error {
 	_, err := d.db.ExecContext(ctx, `
-		insert into details(detail_name, weight, material_name) values($1, $2, $3)
+		insert into "public.details"(detail_name, weight, material_name) values($1, $2, $3)
 	`, detail.Name, detail.Weight, detail.MaterialName)
 
 	return err
@@ -106,7 +118,7 @@ func (d *Database) InsertProducts(ctx context.Context, product *models.Product) 
 	}()
 
 	result, err := tx.ExecContext(ctx, `
-		insert into products(product_name) values($1)
+		insert into "public.products"(product_name) values($1)
 	`, product.Name)
 	if err != nil {
 		return
@@ -119,7 +131,7 @@ func (d *Database) InsertProducts(ctx context.Context, product *models.Product) 
 
 	for _, detail := range product.Details {
 		_, err = tx.ExecContext(ctx, `
-			insert into product_composition(product_number, detail_name, details_amount) values($1, $2, $3)
+			insert into "public.product_composition"(product_number, detail_name, details_amount) values($1, $2, $3)
 		`, lastId, detail.Name, detail.Amount)
 		if err != nil {
 			return
@@ -131,7 +143,7 @@ func (d *Database) InsertProducts(ctx context.Context, product *models.Product) 
 
 func (d *Database) UpdateMaterials(ctx context.Context, material *models.Material) error {
 	_, err := d.db.ExecContext(ctx, `
-		update materials set material_name = $1, cost_per_gram = $2 where material_name = $3
+		update "public.materials" set material_name = $1, cost_per_gram = $2 where material_name = $3
 	`, material.Name, material.CostPerGram, material.Name)
 
 	return err
@@ -139,7 +151,7 @@ func (d *Database) UpdateMaterials(ctx context.Context, material *models.Materia
 
 func (d *Database) UpdateDetails(ctx context.Context, detail *models.Detail) error {
 	_, err := d.db.ExecContext(ctx, `
-		update details set detail_name = $1, weight = $2, material_name = $3 where detail_name = $4
+		update "public.details" set detail_name = $1, weight = $2, material_name = $3 where detail_name = $4
 	`, detail.Name, detail.Weight, detail.MaterialName, detail.Name)
 
 	return err
@@ -159,19 +171,19 @@ func (d *Database) UpdateProducts(ctx context.Context, product *models.Product) 
 	}()
 
 	_, err = tx.ExecContext(ctx, `
-		update products set product_name = $1 where id = $2
+		update "public.products" set product_name = $1 where product_number = $2
 	`, product.Name, product.Id)
 	if err != nil {
 		return
 	}
 
 	_, err = tx.ExecContext(ctx, `
-		delete from product_composition where product_number = $1
+		delete from "public.product_composition" where product_number = $1
 	`, product.Id)
 
 	for _, detail := range product.Details {
 		_, err = tx.ExecContext(ctx, `
-			insert into product_composition(product_number, detail_name, details_amount) values($1, $2, $3)
+			insert into "public.product_composition"(product_number, detail_name, details_amount) values($1, $2, $3)
 		`, product.Id, detail.Name, detail.Amount)
 		if err != nil {
 			return

@@ -42,8 +42,6 @@ func main() {
 		log.Printf("package main: config error \n%v", err)
 	}
 
-	logger.Debug(config.Token)
-
 	app.Run(config)
 }
 

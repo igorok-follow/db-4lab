@@ -1,6 +1,6 @@
 package models
 
 type Material struct {
-	Name        string
-	CostPerGram float32
+	Name        string  `db:"material_name"`
+	CostPerGram float32 `db:"cost_per_gram"`
 }
