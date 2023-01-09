@@ -90,8 +90,9 @@ message GetMaterialsResponse {
 }
 
 message Material {
-  string name = 1;
-  float cost_per_gram = 2;
+  string old_name = 1;
+  string name = 2;
+  float cost_per_gram = 3;
 }
 
 message GetDetailsResponse {
@@ -100,10 +101,11 @@ message GetDetailsResponse {
 }
 
 message Detail {
-  string name = 1;
-  float weight = 2;
-  string material_name = 3;
-  int32 amount = 4;
+  string old_name = 1;
+  string name = 2;
+  float weight = 3;
+  string material_name = 4;
+  int32 amount = 5;
 }
 
 message GetProductsResponse {
@@ -112,7 +114,8 @@ message GetProductsResponse {
 }
 
 message Product {
-  int32 id = 1;
-  string name = 2;
-  repeated Detail details = 3;
+  int32 old_id = 1;
+  int32 id = 2;
+  string name = 3;
+  repeated Detail details = 4;
 }

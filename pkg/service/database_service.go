@@ -145,6 +145,7 @@ func (d *Database) InsertDetails(ctx context.Context, req *api.InsertDetailsReq)
 
 	err := d.deps.Repository.DatabaseRepository.InsertDetails(ctx, detail)
 	if err != nil {
+		log.Println(err)
 		return nil, err
 	}
 
