@@ -7,4 +7,4 @@ gateway:
   port: ":65000"
 
 database:
-  uri: "host=194.67.67.119 port=5432 user=postgres password=masterkey dbname=products_db sslmode=disable"
+  uri: ""
