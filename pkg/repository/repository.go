@@ -16,8 +16,8 @@ type DatabaseRepository interface {
 	InsertMaterials(ctx context.Context, material *models.Material) error
 	InsertDetails(ctx context.Context, detail *models.Detail) error
 	InsertProducts(ctx context.Context, product *models.Product) error
-	UpdateMaterials(ctx context.Context, material *models.Material) error
-	UpdateDetails(ctx context.Context, detail *models.Detail) error
+	UpdateMaterials(ctx context.Context, material *models.Material, oldName string) error
+	UpdateDetails(ctx context.Context, detail *models.Detail, oldName string) error
 	UpdateProducts(ctx context.Context, product *models.Product) error
 }
 

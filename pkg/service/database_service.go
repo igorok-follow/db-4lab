@@ -185,7 +185,7 @@ func (d *Database) UpdateMaterials(ctx context.Context, req *api.UpdateMaterials
 		CostPerGram: req.Material.CostPerGram,
 	}
 
-	err := d.deps.Repository.DatabaseRepository.UpdateMaterials(ctx, material)
+	err := d.deps.Repository.DatabaseRepository.UpdateMaterials(ctx, material, req.Material.OldName)
 	if err != nil {
 		return nil, err
 	}
@@ -200,7 +200,7 @@ func (d *Database) UpdateDetails(ctx context.Context, req *api.UpdateDetailsReq)
 		MaterialName: req.Detail.MaterialName,
 	}
 
-	err := d.deps.Repository.DatabaseRepository.UpdateDetails(ctx, detail)
+	err := d.deps.Repository.DatabaseRepository.UpdateDetails(ctx, detail, req.Detail.OldName)
 	if err != nil {
 		return nil, err
 	}
@@ -227,7 +227,7 @@ func (d *Database) UpdateProducts(ctx context.Context, req *api.UpdateProductsRe
 
 	product.Details = details
 
-	err := d.deps.Repository.DatabaseRepository.InsertProducts(ctx, product)
+	err := d.deps.Repository.DatabaseRepository.UpdateProducts(ctx, product)
 	if err != nil {
 		return nil, err
 	}

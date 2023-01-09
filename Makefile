@@ -12,6 +12,5 @@ gen:
 				--go_out=plugins=grpc:./ \
 				--plugin=protoc-gen-grpc-gateway=/Users/igorok/go/bin/protoc-gen-grpc-gateway \
 				--plugin=protoc-gen-grpc-gateway=/Users/igorok/go/bin/protoc-gen-grpc-gateway \
-				--swagger_out=./docs \
 				--grpc-gateway_out ./ \
 				./api/proto/api/*.proto;

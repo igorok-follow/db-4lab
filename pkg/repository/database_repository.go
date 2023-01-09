@@ -141,18 +141,18 @@ func (d *Database) InsertProducts(ctx context.Context, product *models.Product) 
 	return
 }
 
-func (d *Database) UpdateMaterials(ctx context.Context, material *models.Material) error {
+func (d *Database) UpdateMaterials(ctx context.Context, material *models.Material, oldName string) error {
 	_, err := d.db.ExecContext(ctx, `
 		update "public.materials" set material_name = $1, cost_per_gram = $2 where material_name = $3
-	`, material.Name, material.CostPerGram, material.Name)
+	`, material.Name, material.CostPerGram, oldName)
 
 	return err
 }
 
-func (d *Database) UpdateDetails(ctx context.Context, detail *models.Detail) error {
+func (d *Database) UpdateDetails(ctx context.Context, detail *models.Detail, oldName string) error {
 	_, err := d.db.ExecContext(ctx, `
 		update "public.details" set detail_name = $1, weight = $2, material_name = $3 where detail_name = $4
-	`, detail.Name, detail.Weight, detail.MaterialName, detail.Name)
+	`, detail.Name, detail.Weight, detail.MaterialName, oldName)
 
 	return err
 }
