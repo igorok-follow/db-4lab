@@ -153,6 +153,9 @@ func (d *Database) InsertDetails(ctx context.Context, req *api.InsertDetailsReq)
 }
 
 func (d *Database) InsertProducts(ctx context.Context, req *api.InsertProductsReq) (*api.Empty, error) {
+	log.Println(req.Product.Name)
+	log.Println(req.Product.Details)
+
 	product := &models.Product{
 		Id:      req.Product.Id,
 		Name:    req.Product.Name,
