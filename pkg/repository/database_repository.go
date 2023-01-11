@@ -4,6 +4,7 @@ import (
 	"context"
 	"database-service/pkg/models"
 	"github.com/jmoiron/sqlx"
+	"log"
 )
 
 type Database struct {
@@ -105,28 +106,17 @@ func (d *Database) InsertDetails(ctx context.Context, detail *models.Detail) err
 }
 
 func (d *Database) InsertProducts(ctx context.Context, product *models.Product) (err error) {
-	tx, err := d.db.Begin()
+	tx, err := d.db.BeginTx(ctx, nil)
 	if err != nil {
-		return
-	}
-	defer func() {
-		if err != nil {
-			err = tx.Rollback()
-			return
-		}
-		err = tx.Commit()
-	}()
-
-	result, err := tx.ExecContext(ctx, `
-		insert into "public.products"(product_name) values($1)
-	`, product.Name)
-	if err != nil {
-		return
+		log.Println(err)
 	}
 
-	lastId, err := result.LastInsertId()
+	var lastId int
+	err = tx.QueryRowContext(ctx, `
+		insert into "public.products"(product_name) values($1) returning product_number
+	`, product.Name).Scan(&lastId)
 	if err != nil {
-		return
+		log.Println(err)
 	}
 
 	for _, detail := range product.Details {
@@ -134,8 +124,17 @@ func (d *Database) InsertProducts(ctx context.Context, product *models.Product) 
 			insert into "public.product_composition"(product_number, detail_name, details_amount) values($1, $2, $3)
 		`, lastId, detail.Name, detail.Amount)
 		if err != nil {
-			return
+			log.Println(err)
 		}
+	}
+
+	if err != nil {
+		err = tx.Rollback()
+		return
+	}
+	err = tx.Commit()
+	if err != nil {
+		return
 	}
 
 	return
@@ -158,23 +157,16 @@ func (d *Database) UpdateDetails(ctx context.Context, detail *models.Detail, old
 }
 
 func (d *Database) UpdateProducts(ctx context.Context, product *models.Product) (err error) {
-	tx, err := d.db.Begin()
+	tx, err := d.db.BeginTx(ctx, nil)
 	if err != nil {
-		return
+		log.Println(err)
 	}
-	defer func() {
-		if err != nil {
-			err = tx.Rollback()
-			return
-		}
-		err = tx.Commit()
-	}()
 
 	_, err = tx.ExecContext(ctx, `
 		update "public.products" set product_name = $1 where product_number = $2
 	`, product.Name, product.Id)
 	if err != nil {
-		return
+		log.Println(err)
 	}
 
 	_, err = tx.ExecContext(ctx, `
@@ -186,8 +178,17 @@ func (d *Database) UpdateProducts(ctx context.Context, product *models.Product) 
 			insert into "public.product_composition"(product_number, detail_name, details_amount) values($1, $2, $3)
 		`, product.Id, detail.Name, detail.Amount)
 		if err != nil {
-			return
+			log.Println(err)
 		}
+	}
+
+	if err != nil {
+		err = tx.Rollback()
+		return
+	}
+	err = tx.Commit()
+	if err != nil {
+		return
 	}
 
 	return

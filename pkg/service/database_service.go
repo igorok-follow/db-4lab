@@ -85,9 +85,6 @@ func (d *Database) GetProducts(ctx context.Context, _ *api.Empty) (*api.GetProdu
 			Details: detailsResp,
 		}
 
-		log.Println(productsResp[i].Details[0])
-		log.Println(productsResp[i].Details[1])
-
 	}
 
 	return &api.GetProductsResponse{
@@ -145,7 +142,6 @@ func (d *Database) InsertDetails(ctx context.Context, req *api.InsertDetailsReq)
 
 	err := d.deps.Repository.DatabaseRepository.InsertDetails(ctx, detail)
 	if err != nil {
-		log.Println(err)
 		return nil, err
 	}
 
@@ -153,9 +149,6 @@ func (d *Database) InsertDetails(ctx context.Context, req *api.InsertDetailsReq)
 }
 
 func (d *Database) InsertProducts(ctx context.Context, req *api.InsertProductsReq) (*api.Empty, error) {
-	log.Println(req.Product.Name)
-	log.Println(req.Product.Details)
-
 	product := &models.Product{
 		Id:      req.Product.Id,
 		Name:    req.Product.Name,
@@ -165,10 +158,8 @@ func (d *Database) InsertProducts(ctx context.Context, req *api.InsertProductsRe
 	details := make([]*models.Detail, len(req.Product.Details))
 	for i := 0; i < len(req.Product.Details); i++ {
 		details[i] = &models.Detail{
-			Name:         req.Product.Details[i].Name,
-			Weight:       req.Product.Details[i].Weight,
-			MaterialName: req.Product.Details[i].MaterialName,
-			Amount:       req.Product.Details[i].Amount,
+			Name:   req.Product.Details[i].Name,
+			Amount: req.Product.Details[i].Amount,
 		}
 	}
 
@@ -221,14 +212,15 @@ func (d *Database) UpdateProducts(ctx context.Context, req *api.UpdateProductsRe
 	details := make([]*models.Detail, len(req.Product.Details))
 	for i := 0; i < len(req.Product.Details); i++ {
 		details[i] = &models.Detail{
-			Name:         req.Product.Details[i].Name,
-			Weight:       req.Product.Details[i].Weight,
-			MaterialName: req.Product.Details[i].MaterialName,
-			Amount:       req.Product.Details[i].Amount,
+			Name:   req.Product.Details[i].Name,
+			Amount: req.Product.Details[i].Amount,
 		}
 	}
 
 	product.Details = details
+	log.Println(product.Id)
+	log.Println(product.Name)
+	log.Println(product.Details)
 
 	err := d.deps.Repository.DatabaseRepository.UpdateProducts(ctx, product)
 	if err != nil {
