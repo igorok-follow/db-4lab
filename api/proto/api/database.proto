@@ -44,6 +44,42 @@ service Database {
   rpc UpdateProducts(UpdateProductsReq) returns(Empty) {
     option (google.api.http) = { post: "/api/update/products"; body: "*"; };
   };
+
+  rpc Document1(GetDocument1Req) returns (GetDocument1Resp) {
+    option (google.api.http) = { post: "/api/get/document1"; body: "*"; };
+  };
+  rpc Document2(GetDocument2Req) returns (GetDocument2Resp) {
+    option (google.api.http) = { post: "/api/get/document2"; body: "*"; };
+  };
+}
+
+message GetDocument1Req {
+  string name = 1;
+}
+
+message GetDocument1Resp {
+  repeated DocumentDetail details = 1;
+}
+
+message DocumentDetail {
+  string detail_name = 1;
+  int32 details_amount = 2;
+  float weight = 3;
+  string material_name = 4;
+  float cost_per_gram = 5;
+}
+
+message GetDocument2Req {
+  string name = 1;
+}
+
+message GetDocument2Resp {
+  repeated DocumentProduct products = 1;
+}
+
+message DocumentProduct {
+  string name = 1;
+  float materials_weight = 2;
 }
 
 message UpdateMaterialsReq {
