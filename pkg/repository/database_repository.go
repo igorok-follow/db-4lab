@@ -193,3 +193,28 @@ func (d *Database) UpdateProducts(ctx context.Context, product *models.Product) 
 
 	return
 }
+
+func (d *Database) Document1(ctx context.Context, name string) ([]*models.Detail, error) {
+	var details []*models.Detail
+
+	err := d.db.SelectContext(ctx, &details, `
+-- 		sql query
+	`, name)
+	if err != nil {
+		return nil, err
+	}
+
+	return details, nil
+}
+func (d *Database) Document2(ctx context.Context, name string) ([]*models.Product, error) {
+	var products []*models.Product
+
+	err := d.db.SelectContext(ctx, &products, `
+-- 		sql query
+	`, name)
+	if err != nil {
+		return nil, err
+	}
+
+	return products, nil
+}

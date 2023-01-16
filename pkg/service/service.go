@@ -20,6 +20,8 @@ type DatabaseService interface {
 	UpdateMaterials(ctx context.Context, req *api.UpdateMaterialsReq) (*api.Empty, error)
 	UpdateDetails(ctx context.Context, req *api.UpdateDetailsReq) (*api.Empty, error)
 	UpdateProducts(ctx context.Context, req *api.UpdateProductsReq) (*api.Empty, error)
+	Document1(ctx context.Context, req *api.GetDocument1Req) (*api.GetDocument1Resp, error)
+	Document2(ctx context.Context, req *api.GetDocument2Req) (*api.GetDocument2Resp, error)
 }
 
 type Services struct {
