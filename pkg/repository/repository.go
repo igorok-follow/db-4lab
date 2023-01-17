@@ -19,8 +19,8 @@ type DatabaseRepository interface {
 	UpdateMaterials(ctx context.Context, material *models.Material, oldName string) error
 	UpdateDetails(ctx context.Context, detail *models.Detail, oldName string) error
 	UpdateProducts(ctx context.Context, product *models.Product) error
-	Document1(ctx context.Context, name string) ([]*models.Detail, error)
-	Document2(ctx context.Context, name string) ([]*models.Product, error)
+	Document1(ctx context.Context, name string) ([]*models.Document1, error)
+	Document2(ctx context.Context, name string) ([]*models.Document2, error)
 }
 
 type Repositories struct {

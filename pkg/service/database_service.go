@@ -22,16 +22,19 @@ func NewDatabaseService(
 func (d *Database) Document1(ctx context.Context, req *api.GetDocument1Req) (*api.GetDocument1Resp, error) {
 	document, err := d.deps.Repository.DatabaseRepository.Document1(ctx, req.Name)
 	if err != nil {
+		log.Println(err)
 		return nil, err
 	}
 
 	respDocuments := make([]*api.DocumentDetail, len(document))
-	for i, detail := range document {
+	for i, doc := range document {
 		respDocuments[i] = &api.DocumentDetail{
-			DetailName:  detail.Name,
-			CostPerGram: detail.MaterialsCost,
+			DetailName:  doc.DetailName,
+			CostPerGram: doc.Cost,
 		}
 	}
+
+	log.Println(respDocuments)
 
 	return &api.GetDocument1Resp{
 		Details: respDocuments,
@@ -45,10 +48,10 @@ func (d *Database) Document2(ctx context.Context, req *api.GetDocument2Req) (*ap
 	}
 
 	respDocuments := make([]*api.DocumentProduct, len(document))
-	for i, product := range document {
+	for i, doc := range document {
 		respDocuments[i] = &api.DocumentProduct{
-			Name:            product.Name,
-			MaterialsWeight: product.MaterialsWeight,
+			Name:            doc.ProductName,
+			MaterialsWeight: doc.MaterialsWeight,
 		}
 	}
 

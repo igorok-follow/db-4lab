@@ -194,27 +194,35 @@ func (d *Database) UpdateProducts(ctx context.Context, product *models.Product) 
 	return
 }
 
-func (d *Database) Document1(ctx context.Context, name string) ([]*models.Detail, error) {
-	var details []*models.Detail
+func (d *Database) Document1(ctx context.Context, name string) ([]*models.Document1, error) {
+	var document []*models.Document1
 
-	err := d.db.SelectContext(ctx, &details, `
--- 		sql query
+	err := d.db.SelectContext(ctx, &document, `
+ 		select p.product_name, d.detail_name, d.weight * m.cost_per_gram as cost from "public.materials" as m
+		inner join "public.details" as d on m.material_name = d.material_name
+		inner join "public.product_composition" pc on d.detail_name = pc.detail_name
+		inner join public."public.products" p on pc.product_number = p.product_number
+		where p.product_name = $1 order by d.detail_name;
 	`, name)
 	if err != nil {
 		return nil, err
 	}
 
-	return details, nil
+	return document, nil
 }
-func (d *Database) Document2(ctx context.Context, name string) ([]*models.Product, error) {
-	var products []*models.Product
+func (d *Database) Document2(ctx context.Context, name string) ([]*models.Document2, error) {
+	var document []*models.Document2
 
-	err := d.db.SelectContext(ctx, &products, `
--- 		sql query
+	err := d.db.SelectContext(ctx, &document, `
+		select p.product_name, d.weight * pc.details_amount as mw from "public.materials" as m
+		inner join "public.details" d on m.material_name = d.material_name
+		inner join "public.product_composition" pc on d.detail_name = pc.detail_name
+		inner join public."public.products" p on pc.product_number = p.product_number
+		where m.material_name = $1 order by mw;
 	`, name)
 	if err != nil {
 		return nil, err
 	}
 
-	return products, nil
+	return document, nil
 }
